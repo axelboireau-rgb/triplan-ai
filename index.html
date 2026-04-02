@@ -1,441 +1,1447 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TriPlan AI — Plan d'entraînement triathlon</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-  :root {
-    --bg: #0a0e1a; --surface: #111827; --surface2: #1a2235; --border: #1e2d45;
-    --accent: #00d4aa; --accent2: #0098ff; --warn: #ff6b35;
-    --text: #e8f0fe; --muted: #6b7a99;
-    --swim: #0098ff; --bike: #ff6b35; --run: #00d4aa;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-  body::before { content:''; position:fixed; inset:0; background-image: linear-gradient(rgba(0,212,170,0.03) 1px,transparent 1px), linear-gradient(90deg,rgba(0,212,170,0.03) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
-  .app { position:relative; z-index:1; max-width:960px; margin:0 auto; padding:32px 20px; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TriPlan AI — Plan d'entraînement triathlon</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      :root {
+        --bg: #0a0e1a;
+        --surface: #111827;
+        --surface2: #1a2235;
+        --border: #1e2d45;
+        --accent: #00d4aa;
+        --accent2: #0098ff;
+        --warn: #ff6b35;
+        --text: #e8f0fe;
+        --muted: #6b7a99;
+        --swim: #0098ff;
+        --bike: #ff6b35;
+        --run: #00d4aa;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .app {
+        position: relative;
+        z-index: 1;
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 32px 20px;
+      }
 
-  header { display:flex; align-items:center; justify-content:space-between; margin-bottom:32px; }
-  .logo-area { display:flex; align-items:center; gap:12px; }
-  .logo { display:flex; gap:4px; }
-  .logo-dot { width:10px; height:10px; border-radius:50%; animation:pulse 2s ease-in-out infinite; }
-  .logo-dot:nth-child(1){background:var(--swim);animation-delay:0s}
-  .logo-dot:nth-child(2){background:var(--bike);animation-delay:.3s}
-  .logo-dot:nth-child(3){background:var(--run);animation-delay:.6s}
-  @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.7}}
-  h1 { font-family:'Bebas Neue',sans-serif; font-size:2rem; letter-spacing:3px; background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .user-area { display:flex; align-items:center; gap:10px; }
-  .user-email { font-size:0.8rem; color:var(--muted); }
-  .btn-sm { padding:8px 14px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); font-size:0.75rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .2s; }
-  .btn-sm:hover { border-color:var(--accent); color:var(--accent); }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+      }
+      .logo-area {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .logo {
+        display: flex;
+        gap: 4px;
+      }
+      .logo-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        animation: pulse 2s ease-in-out infinite;
+      }
+      .logo-dot:nth-child(1) {
+        background: var(--swim);
+        animation-delay: 0s;
+      }
+      .logo-dot:nth-child(2) {
+        background: var(--bike);
+        animation-delay: 0.3s;
+      }
+      .logo-dot:nth-child(3) {
+        background: var(--run);
+        animation-delay: 0.6s;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.4);
+          opacity: 0.7;
+        }
+      }
+      h1 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2rem;
+        letter-spacing: 3px;
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .user-area {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .user-email {
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .btn-sm {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: all 0.2s;
+      }
+      .btn-sm:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
 
-  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px; margin-bottom:20px; }
-  .card-title { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:2px; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 20px;
+      }
+      .card-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.4rem;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-  /* AUTH */
-  .auth-container { max-width:420px; margin:60px auto; }
-  .auth-tabs { display:flex; gap:0; margin-bottom:24px; background:var(--surface2); border-radius:10px; padding:4px; }
-  .auth-tab { flex:1; padding:10px; text-align:center; border-radius:8px; cursor:pointer; font-size:0.85rem; font-weight:600; color:var(--muted); transition:all .2s; border:none; background:transparent; font-family:'DM Sans',sans-serif; }
-  .auth-tab.active { background:var(--surface); color:var(--accent); }
-  .form-group { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
-  label { font-size:0.75rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
-  input[type="email"],input[type="password"],input[type="number"],select { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:12px 16px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.95rem; outline:none; transition:border-color .2s; width:100%; }
-  input:focus,select:focus { border-color:var(--accent); }
-  select option { background:var(--surface2); }
-  .btn-primary { width:100%; padding:14px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:12px; color:var(--bg); font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:3px; cursor:pointer; transition:all .3s; margin-top:8px; }
-  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,212,170,.3); }
-  .btn-primary:disabled { opacity:.5; cursor:not-allowed; transform:none; }
-  .auth-msg { margin-top:12px; font-size:0.85rem; text-align:center; min-height:20px; }
-  .auth-msg.error { color:var(--warn); }
-  .auth-msg.success { color:var(--accent); }
+      /* AUTH */
+      .auth-container {
+        max-width: 420px;
+        margin: 60px auto;
+      }
+      .auth-tabs {
+        display: flex;
+        gap: 0;
+        margin-bottom: 24px;
+        background: var(--surface2);
+        border-radius: 10px;
+        padding: 4px;
+      }
+      .auth-tab {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--muted);
+        transition: all 0.2s;
+        border: none;
+        background: transparent;
+        font-family: "DM Sans", sans-serif;
+      }
+      .auth-tab.active {
+        background: var(--surface);
+        color: var(--accent);
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      input[type="email"],
+      input[type="password"],
+      input[type="number"],
+      select {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 16px;
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 0.2s;
+        width: 100%;
+      }
+      input:focus,
+      select:focus {
+        border-color: var(--accent);
+      }
+      select option {
+        background: var(--surface2);
+      }
+      .btn-primary {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        border: none;
+        border-radius: 12px;
+        color: var(--bg);
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.2rem;
+        letter-spacing: 3px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 8px;
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 212, 170, 0.3);
+      }
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .auth-msg {
+        margin-top: 12px;
+        font-size: 0.85rem;
+        text-align: center;
+        min-height: 20px;
+      }
+      .auth-msg.error {
+        color: var(--warn);
+      }
+      .auth-msg.success {
+        color: var(--accent);
+      }
 
-  /* NAV */
-  .nav-tabs { display:flex; gap:8px; margin-bottom:28px; flex-wrap:wrap; }
-  .nav-tab { padding:10px 18px; border-radius:10px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); font-size:0.8rem; font-weight:600; letter-spacing:1px; cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif; }
-  .nav-tab.active { border-color:var(--accent); background:rgba(0,212,170,.1); color:var(--accent); }
+      /* NAV */
+      .nav-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+      }
+      .nav-tab {
+        padding: 10px 18px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--muted);
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: "DM Sans", sans-serif;
+      }
+      .nav-tab.active {
+        border-color: var(--accent);
+        background: rgba(0, 212, 170, 0.1);
+        color: var(--accent);
+      }
 
-  /* FORM */
-  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  .form-group.full { grid-column:1/-1; }
-  .disciplines { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-  .discipline-card { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; }
-  .discipline-icon { font-size:1.8rem; margin-bottom:8px; }
-  .discipline-name { font-size:0.7rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:12px; }
-  .discipline-card.swim .discipline-name{color:var(--swim)} .discipline-card.bike .discipline-name{color:var(--bike)} .discipline-card.run .discipline-name{color:var(--run)}
-  .level-btns { display:flex; gap:4px; }
-  .level-btn { flex:1; padding:6px 4px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:0.65rem; font-weight:600; cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif; }
-  .discipline-card.swim .level-btn.active{background:var(--swim);border-color:var(--swim);color:white}
-  .discipline-card.bike .level-btn.active{background:var(--bike);border-color:var(--bike);color:white}
-  .discipline-card.run .level-btn.active{background:var(--run);border-color:var(--run);color:white}
-  .hours-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
-  .day-btn { aspect-ratio:1; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); font-size:0.65rem; font-weight:600; cursor:pointer; transition:all .2s; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-family:'DM Sans',sans-serif; }
-  .day-btn.active { border-color:var(--accent); background:rgba(0,212,170,.1); color:var(--accent); }
-  .goal-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-  .goal-btn { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:14px 10px; text-align:center; cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif; }
-  .goal-btn:hover { border-color:var(--accent); }
-  .goal-btn.active { border-color:var(--accent); background:rgba(0,212,170,.1); }
-  .goal-emoji { font-size:1.5rem; margin-bottom:6px; }
-  .goal-label { font-size:0.7rem; font-weight:600; }
-  .goal-sub { font-size:0.6rem; color:var(--muted); margin-top:2px; }
-  .btn-generate { width:100%; padding:18px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:12px; color:var(--bg); font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:3px; cursor:pointer; transition:all .3s; margin-top:24px; }
-  .btn-generate:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,212,170,.3)}
-  .btn-generate:disabled{opacity:.5;cursor:not-allowed;transform:none}
+      /* FORM */
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .form-group.full {
+        grid-column: 1/-1;
+      }
+      .disciplines {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .discipline-card {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+      }
+      .discipline-icon {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+      }
+      .discipline-name {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
+      .discipline-card.swim .discipline-name {
+        color: var(--swim);
+      }
+      .discipline-card.bike .discipline-name {
+        color: var(--bike);
+      }
+      .discipline-card.run .discipline-name {
+        color: var(--run);
+      }
+      .level-btns {
+        display: flex;
+        gap: 4px;
+      }
+      .level-btn {
+        flex: 1;
+        padding: 6px 4px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--muted);
+        font-size: 0.65rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: "DM Sans", sans-serif;
+      }
+      .discipline-card.swim .level-btn.active {
+        background: var(--swim);
+        border-color: var(--swim);
+        color: white;
+      }
+      .discipline-card.bike .level-btn.active {
+        background: var(--bike);
+        border-color: var(--bike);
+        color: white;
+      }
+      .discipline-card.run .level-btn.active {
+        background: var(--run);
+        border-color: var(--run);
+        color: white;
+      }
+      .hours-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+      }
+      .day-btn {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--muted);
+        font-size: 0.65rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        font-family: "DM Sans", sans-serif;
+      }
+      .day-btn.active {
+        border-color: var(--accent);
+        background: rgba(0, 212, 170, 0.1);
+        color: var(--accent);
+      }
+      .goal-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+      .goal-btn {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: "DM Sans", sans-serif;
+      }
+      .goal-btn:hover {
+        border-color: var(--accent);
+      }
+      .goal-btn.active {
+        border-color: var(--accent);
+        background: rgba(0, 212, 170, 0.1);
+      }
+      .goal-emoji {
+        font-size: 1.5rem;
+        margin-bottom: 6px;
+      }
+      .goal-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+      }
+      .goal-sub {
+        font-size: 0.6rem;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .btn-generate {
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        border: none;
+        border-radius: 12px;
+        color: var(--bg);
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.3rem;
+        letter-spacing: 3px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 24px;
+      }
+      .btn-generate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 212, 170, 0.3);
+      }
+      .btn-generate:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
 
-  /* LOADING */
-  .loading{text-align:center;padding:60px 20px}
-  .loader{display:flex;justify-content:center;gap:12px;margin-bottom:24px}
-  .loader-icon{font-size:2rem;animation:bounce 1s ease-in-out infinite}
-  .loader-icon:nth-child(1){animation-delay:0s} .loader-icon:nth-child(2){animation-delay:.2s} .loader-icon:nth-child(3){animation-delay:.4s}
-  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-  .loading-text{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--accent);margin-bottom:8px}
-  .loading-sub{color:var(--muted);font-size:.85rem}
+      /* LOADING */
+      .loading {
+        text-align: center;
+        padding: 60px 20px;
+      }
+      .loader {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .loader-icon {
+        font-size: 2rem;
+        animation: bounce 1s ease-in-out infinite;
+      }
+      .loader-icon:nth-child(1) {
+        animation-delay: 0s;
+      }
+      .loader-icon:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .loader-icon:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-12px);
+        }
+      }
+      .loading-text {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.4rem;
+        letter-spacing: 3px;
+        color: var(--accent);
+        margin-bottom: 8px;
+      }
+      .loading-sub {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
 
-  /* PLAN */
-  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-  .stat-box{background:var(--surface2);border-radius:10px;padding:14px;text-align:center;border:1px solid var(--border)}
-  .stat-value{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px}
-  .stat-label{font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
-  .plan-content{line-height:1.8;font-size:.9rem;color:var(--text);white-space:pre-wrap}
-  .plan-content strong{color:var(--accent);font-weight:600}
-  .session-swim{color:var(--swim);font-weight:600} .session-bike{color:var(--bike);font-weight:600} .session-run{color:var(--run);font-weight:600}
-  .btn-secondary{background:transparent;border:1px solid var(--border);color:var(--muted);padding:12px 24px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;transition:all .2s;margin-top:16px;margin-right:10px}
-  .btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
-  .stream-cursor{display:inline-block;width:2px;height:1em;background:var(--accent);animation:blink .7s infinite;vertical-align:text-bottom;margin-left:2px}
-  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-  .save-notice{display:flex;align-items:center;gap:8px;background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.85rem;color:var(--accent)}
+      /* PLAN */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .stat-box {
+        background: var(--surface2);
+        border-radius: 10px;
+        padding: 14px;
+        text-align: center;
+        border: 1px solid var(--border);
+      }
+      .stat-value {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        letter-spacing: 2px;
+      }
+      .stat-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+      }
+      .plan-content {
+        line-height: 1.8;
+        font-size: 0.9rem;
+        color: var(--text);
+        white-space: pre-wrap;
+      }
+      .plan-content strong {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .session-swim {
+        color: var(--swim);
+        font-weight: 600;
+      }
+      .session-bike {
+        color: var(--bike);
+        font-weight: 600;
+      }
+      .session-run {
+        color: var(--run);
+        font-weight: 600;
+      }
+      .btn-secondary {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        margin-top: 16px;
+        margin-right: 10px;
+      }
+      .btn-secondary:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .stream-cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1em;
+        background: var(--accent);
+        animation: blink 0.7s infinite;
+        vertical-align: text-bottom;
+        margin-left: 2px;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+      .save-notice {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(0, 212, 170, 0.08);
+        border: 1px solid rgba(0, 212, 170, 0.2);
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        font-size: 0.85rem;
+        color: var(--accent);
+      }
 
-  /* SAVED PLANS LIST */
-  .saved-plan-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:all .2s}
-  .saved-plan-item:hover{border-color:var(--accent)}
-  .saved-plan-meta{font-size:.8rem;color:var(--muted);margin-top:4px}
-  .saved-plan-title{font-weight:600;font-size:.95rem}
-  .badge{padding:4px 10px;border-radius:20px;font-size:.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase}
-  .badge-accent{background:rgba(0,212,170,.15);color:var(--accent);border:1px solid rgba(0,212,170,.3)}
+      /* SAVED PLANS LIST */
+      .saved-plan-item {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .saved-plan-item:hover {
+        border-color: var(--accent);
+      }
+      .saved-plan-meta {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .saved-plan-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      .badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .badge-accent {
+        background: rgba(0, 212, 170, 0.15);
+        color: var(--accent);
+        border: 1px solid rgba(0, 212, 170, 0.3);
+      }
 
-  /* TRACKING */
-  .progress-bar-wrap{background:var(--surface2);border-radius:20px;height:10px;margin-bottom:6px;overflow:hidden}
-  .progress-bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s ease}
-  .progress-label{font-size:.75rem;color:var(--muted);margin-bottom:16px}
-  .week-selector{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-  .week-pill{padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
-  .week-pill.active{border-color:var(--accent);background:rgba(0,212,170,.1);color:var(--accent)}
-  .week-pill.complete{border-color:var(--accent2);background:rgba(0,152,255,.1);color:var(--accent2)}
-  .sessions-grid{display:grid;gap:10px}
-  .session-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;transition:all .3s;cursor:pointer}
-  .session-item.done{background:rgba(0,212,170,.06);border-color:rgba(0,212,170,.25)}
-  .session-item:hover{border-color:var(--accent)}
-  .session-checkbox{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;font-size:.9rem}
-  .session-item.done .session-checkbox{background:var(--accent);border-color:var(--accent)}
-  .session-info{flex:1}
-  .session-day{font-size:.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
-  .session-desc{font-size:.9rem;font-weight:500}
-  .session-item.done .session-desc{text-decoration:line-through;opacity:.6}
-  .session-duration{font-size:.75rem;color:var(--muted);margin-top:2px}
-  .session-disc-badge{padding:4px 10px;border-radius:20px;font-size:.65rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-  .disc-swim{background:rgba(0,152,255,.15);color:var(--swim);border:1px solid rgba(0,152,255,.3)}
-  .disc-bike{background:rgba(255,107,53,.15);color:var(--bike);border:1px solid rgba(255,107,53,.3)}
-  .disc-run{background:rgba(0,212,170,.15);color:var(--run);border:1px solid rgba(0,212,170,.3)}
-  .disc-brick{background:rgba(160,100,255,.15);color:#a064ff;border:1px solid rgba(160,100,255,.3)}
-  .weekly-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-  .wstat{background:var(--surface2);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border)}
-  .wstat-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px}
-  .wstat-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
-  .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
-  .empty-icon{font-size:3rem;margin-bottom:12px}
+      /* TRACKING */
+      .progress-bar-wrap {
+        background: var(--surface2);
+        border-radius: 20px;
+        height: 10px;
+        margin-bottom: 6px;
+        overflow: hidden;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        border-radius: 20px;
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
+        transition: width 0.5s ease;
+      }
+      .progress-label {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-bottom: 16px;
+      }
+      .week-selector {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+      .week-pill {
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: "DM Sans", sans-serif;
+      }
+      .week-pill.active {
+        border-color: var(--accent);
+        background: rgba(0, 212, 170, 0.1);
+        color: var(--accent);
+      }
+      .week-pill.complete {
+        border-color: var(--accent2);
+        background: rgba(0, 152, 255, 0.1);
+        color: var(--accent2);
+      }
+      .sessions-grid {
+        display: grid;
+        gap: 10px;
+      }
+      .session-item {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+      .session-item.done {
+        background: rgba(0, 212, 170, 0.06);
+        border-color: rgba(0, 212, 170, 0.25);
+      }
+      .session-item:hover {
+        border-color: var(--accent);
+      }
+      .session-checkbox {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 2px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+      }
+      .session-item.done .session-checkbox {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+      .session-info {
+        flex: 1;
+      }
+      .session-day {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 2px;
+      }
+      .session-desc {
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+      .session-item.done .session-desc {
+        text-decoration: line-through;
+        opacity: 0.6;
+      }
+      .session-duration {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .session-disc-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+      .disc-swim {
+        background: rgba(0, 152, 255, 0.15);
+        color: var(--swim);
+        border: 1px solid rgba(0, 152, 255, 0.3);
+      }
+      .disc-bike {
+        background: rgba(255, 107, 53, 0.15);
+        color: var(--bike);
+        border: 1px solid rgba(255, 107, 53, 0.3);
+      }
+      .disc-run {
+        background: rgba(0, 212, 170, 0.15);
+        color: var(--run);
+        border: 1px solid rgba(0, 212, 170, 0.3);
+      }
+      .disc-brick {
+        background: rgba(160, 100, 255, 0.15);
+        color: #a064ff;
+        border: 1px solid rgba(160, 100, 255, 0.3);
+      }
+      .weekly-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .wstat {
+        background: var(--surface2);
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        border: 1px solid var(--border);
+      }
+      .wstat-val {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+      }
+      .wstat-lbl {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+      }
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--muted);
+      }
+      .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+      }
 
-  @media(max-width:600px){
-    .form-grid{grid-template-columns:1fr} .disciplines{grid-template-columns:1fr}
-    .goal-grid{grid-template-columns:repeat(2,1fr)} .hours-grid{grid-template-columns:repeat(4,1fr)}
-    .stats-row,.weekly-stats{grid-template-columns:1fr} h1{font-size:1.5rem}
-    .nav-tab{font-size:.7rem;padding:8px 12px}
-  }
-</style>
-</head>
-<body>
-<div class="app">
+      @media (max-width: 600px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .disciplines {
+          grid-template-columns: 1fr;
+        }
+        .goal-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .hours-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .stats-row,
+        .weekly-stats {
+          grid-template-columns: 1fr;
+        }
+        h1 {
+          font-size: 1.5rem;
+        }
+        .nav-tab {
+          font-size: 0.7rem;
+          padding: 8px 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <div class="logo-area">
+          <div class="logo">
+            <div class="logo-dot"></div>
+            <div class="logo-dot"></div>
+            <div class="logo-dot"></div>
+          </div>
+          <h1>TriPlan AI</h1>
+        </div>
+        <div class="user-area" id="userArea" style="display: none">
+          <span class="user-email" id="userEmail"></span>
+          <button class="btn-sm" onclick="signOut()">Déconnexion</button>
+        </div>
+      </header>
 
-  <header>
-    <div class="logo-area">
-      <div class="logo"><div class="logo-dot"></div><div class="logo-dot"></div><div class="logo-dot"></div></div>
-      <h1>TriPlan AI</h1>
-    </div>
-    <div class="user-area" id="userArea" style="display:none">
-      <span class="user-email" id="userEmail"></span>
-      <button class="btn-sm" onclick="signOut()">Déconnexion</button>
-    </div>
-  </header>
-
-  <!-- AUTH -->
-  <div id="authSection" class="auth-container">
-    <div class="card">
-      <div class="card-title" style="justify-content:center;">🏊🚴🏃 Bienvenue</div>
-      <div class="auth-tabs">
-        <button class="auth-tab active" onclick="switchTab('login')">Connexion</button>
-        <button class="auth-tab" onclick="switchTab('signup')">Inscription</button>
-      </div>
-      <div id="loginForm">
-        <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="ton@email.com"></div>
-        <div class="form-group"><label>Mot de passe</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
-        <button class="btn-primary" onclick="signIn()">SE CONNECTER</button>
-      </div>
-      <div id="signupForm" style="display:none">
-        <div class="form-group"><label>Email</label><input type="email" id="signupEmail" placeholder="ton@email.com"></div>
-        <div class="form-group"><label>Mot de passe</label><input type="password" id="signupPassword" placeholder="Min. 6 caractères"></div>
-        <button class="btn-primary" onclick="signUp()">CRÉER MON COMPTE</button>
-      </div>
-      <div class="auth-msg" id="authMsg"></div>
-    </div>
-  </div>
-
-  <!-- MAIN APP -->
-  <div id="mainApp" style="display:none">
-    <div class="nav-tabs">
-      <button class="nav-tab active" id="navNew" onclick="showTab('new')">➕ Nouveau plan</button>
-      <button class="nav-tab" id="navPlans" onclick="showTab('plans')">📂 Mes plans</button>
-      <button class="nav-tab" id="navTrack" onclick="showTab('track')">✅ Suivi</button>
-    </div>
-
-    <!-- NEW PLAN -->
-    <div id="tabNew">
-      <div id="formSection">
+      <!-- AUTH -->
+      <div id="authSection" class="auth-container">
         <div class="card">
-          <div class="card-title"><span>🧑‍💻</span> Ton profil</div>
-          <div class="form-grid">
-            <div class="form-group"><label>Âge</label><input type="number" id="age" value="30" min="16" max="80"></div>
-            <div class="form-group"><label>Expérience</label>
-              <select id="experience">
-                <option value="debutant">Débutant (< 1 an)</option>
-                <option value="intermediaire">Intermédiaire (1-3 ans)</option>
-                <option value="avance">Avancé (3+ ans)</option>
-              </select>
+          <div class="card-title" style="justify-content: center">
+            🏊🚴🏃 Bienvenue
+          </div>
+          <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchTab('login')">
+              Connexion
+            </button>
+            <button class="auth-tab" onclick="switchTab('signup')">
+              Inscription
+            </button>
+          </div>
+          <div id="loginForm">
+            <div class="form-group">
+              <label>Email</label
+              ><input
+                type="email"
+                id="loginEmail"
+                placeholder="ton@email.com"
+              />
+            </div>
+            <div class="form-group">
+              <label>Mot de passe</label
+              ><input
+                type="password"
+                id="loginPassword"
+                placeholder="••••••••"
+              />
+            </div>
+            <button class="btn-primary" onclick="signIn()">SE CONNECTER</button>
+          </div>
+          <div id="signupForm" style="display: none">
+            <div class="form-group">
+              <label>Email</label
+              ><input
+                type="email"
+                id="signupEmail"
+                placeholder="ton@email.com"
+              />
+            </div>
+            <div class="form-group">
+              <label>Mot de passe</label
+              ><input
+                type="password"
+                id="signupPassword"
+                placeholder="Min. 6 caractères"
+              />
+            </div>
+            <button class="btn-primary" onclick="signUp()">
+              CRÉER MON COMPTE
+            </button>
+          </div>
+          <div class="auth-msg" id="authMsg"></div>
+        </div>
+      </div>
+
+      <!-- MAIN APP -->
+      <div id="mainApp" style="display: none">
+        <div class="nav-tabs">
+          <button class="nav-tab active" id="navNew" onclick="showTab('new')">
+            ➕ Nouveau plan
+          </button>
+          <button class="nav-tab" id="navPlans" onclick="showTab('plans')">
+            📂 Mes plans
+          </button>
+          <button class="nav-tab" id="navTrack" onclick="showTab('track')">
+            ✅ Suivi
+          </button>
+        </div>
+
+        <!-- NEW PLAN -->
+        <div id="tabNew">
+          <div id="formSection">
+            <div class="card">
+              <div class="card-title"><span>🧑‍💻</span> Ton profil</div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Âge</label
+                  ><input type="number" id="age" value="30" min="16" max="80" />
+                </div>
+                <div class="form-group">
+                  <label>Expérience</label>
+                  <select id="experience">
+                    <option value="debutant">Débutant (< 1 an)</option>
+                    <option value="intermediaire">
+                      Intermédiaire (1-3 ans)
+                    </option>
+                    <option value="avance">Avancé (3+ ans)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">
+                <span>💪</span> Niveau par discipline
+              </div>
+              <div class="disciplines">
+                <div class="discipline-card swim">
+                  <div class="discipline-icon">🏊</div>
+                  <div class="discipline-name">Natation</div>
+                  <div class="level-btns">
+                    <button
+                      class="level-btn active"
+                      data-disc="swim"
+                      data-val="faible"
+                    >
+                      Faible</button
+                    ><button
+                      class="level-btn"
+                      data-disc="swim"
+                      data-val="moyen"
+                    >
+                      Moyen</button
+                    ><button class="level-btn" data-disc="swim" data-val="fort">
+                      Fort
+                    </button>
+                  </div>
+                </div>
+                <div class="discipline-card bike">
+                  <div class="discipline-icon">🚴</div>
+                  <div class="discipline-name">Vélo</div>
+                  <div class="level-btns">
+                    <button
+                      class="level-btn"
+                      data-disc="bike"
+                      data-val="faible"
+                    >
+                      Faible</button
+                    ><button
+                      class="level-btn active"
+                      data-disc="bike"
+                      data-val="moyen"
+                    >
+                      Moyen</button
+                    ><button class="level-btn" data-disc="bike" data-val="fort">
+                      Fort
+                    </button>
+                  </div>
+                </div>
+                <div class="discipline-card run">
+                  <div class="discipline-icon">🏃</div>
+                  <div class="discipline-name">Course</div>
+                  <div class="level-btns">
+                    <button class="level-btn" data-disc="run" data-val="faible">
+                      Faible</button
+                    ><button
+                      class="level-btn active"
+                      data-disc="run"
+                      data-val="moyen"
+                    >
+                      Moyen</button
+                    ><button class="level-btn" data-disc="run" data-val="fort">
+                      Fort
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title"><span>📅</span> Disponibilités</div>
+              <div class="hours-grid" id="dayGrid">
+                <button class="day-btn active" data-day="Lun">
+                  <span>💪</span>Lun
+                </button>
+                <button class="day-btn" data-day="Mar">
+                  <span>💪</span>Mar
+                </button>
+                <button class="day-btn active" data-day="Mer">
+                  <span>💪</span>Mer
+                </button>
+                <button class="day-btn" data-day="Jeu">
+                  <span>💪</span>Jeu
+                </button>
+                <button class="day-btn active" data-day="Ven">
+                  <span>💪</span>Ven
+                </button>
+                <button class="day-btn" data-day="Sam">
+                  <span>💪</span>Sam
+                </button>
+                <button class="day-btn" data-day="Dim">
+                  <span>💪</span>Dim
+                </button>
+              </div>
+              <div
+                style="
+                  margin-top: 16px;
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                "
+              >
+                <label style="min-width: fit-content">Heures/séance :</label>
+                <input
+                  type="number"
+                  id="hoursPerSession"
+                  value="1.5"
+                  min="0.5"
+                  max="4"
+                  step="0.5"
+                  style="max-width: 100px"
+                />
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title"><span>🏁</span> Objectif</div>
+              <div class="goal-grid">
+                <button class="goal-btn" data-goal="super-sprint">
+                  <div class="goal-emoji">⚡</div>
+                  <div class="goal-label">Super Sprint</div>
+                  <div class="goal-sub">375m/10km/2.5km</div>
+                </button>
+                <button class="goal-btn active" data-goal="sprint">
+                  <div class="goal-emoji">🔥</div>
+                  <div class="goal-label">Sprint</div>
+                  <div class="goal-sub">750m/20km/5km</div>
+                </button>
+                <button class="goal-btn" data-goal="olympique">
+                  <div class="goal-emoji">🏅</div>
+                  <div class="goal-label">Olympique</div>
+                  <div class="goal-sub">1.5km/40km/10km</div>
+                </button>
+                <button class="goal-btn" data-goal="half-ironman">
+                  <div class="goal-emoji">🦾</div>
+                  <div class="goal-label">Half Ironman</div>
+                  <div class="goal-sub">1.9km/90km/21km</div>
+                </button>
+              </div>
+              <div
+                style="
+                  margin-top: 16px;
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                "
+              >
+                <label>Semaines jusqu'à la course :</label>
+                <input
+                  type="number"
+                  id="weeksToRace"
+                  value="12"
+                  min="4"
+                  max="52"
+                />
+              </div>
+            </div>
+            <button class="btn-generate" onclick="generatePlan()">
+              🚀 Générer & Sauvegarder
+            </button>
+          </div>
+
+          <div id="loadingSection" style="display: none">
+            <div class="card loading">
+              <div class="loader">
+                <span class="loader-icon">🏊</span
+                ><span class="loader-icon">🚴</span
+                ><span class="loader-icon">🏃</span>
+              </div>
+              <div class="loading-text">Génération en cours...</div>
+              <div class="loading-sub" id="loadingMsg">
+                Analyse de ton profil
+              </div>
+            </div>
+          </div>
+
+          <div id="planSection" style="display: none">
+            <div class="card">
+              <div class="save-notice">
+                ✅ Plan sauvegardé ! Va dans "Suivi" pour cocher tes séances.
+              </div>
+              <div class="card-title"><span>🏆</span> Ton plan</div>
+              <div class="stats-row">
+                <div class="stat-box">
+                  <div
+                    class="stat-value"
+                    id="statWeeks"
+                    style="color: var(--accent)"
+                  >
+                    -
+                  </div>
+                  <div class="stat-label">Semaines</div>
+                </div>
+                <div class="stat-box">
+                  <div
+                    class="stat-value"
+                    id="statSessions"
+                    style="color: var(--accent2)"
+                  >
+                    -
+                  </div>
+                  <div class="stat-label">Séances/sem</div>
+                </div>
+                <div class="stat-box">
+                  <div
+                    class="stat-value"
+                    id="statGoal"
+                    style="color: var(--warn)"
+                  >
+                    -
+                  </div>
+                  <div class="stat-label">Objectif</div>
+                </div>
+              </div>
+              <div id="planContent" class="plan-content"></div>
+            </div>
+            <button class="btn-secondary" onclick="restartForm()">
+              ← Nouveau plan
+            </button>
+            <button
+              class="btn-secondary"
+              style="border-color: var(--accent); color: var(--accent)"
+              onclick="goToTracking()"
+            >
+              ✅ Voir le suivi →
+            </button>
+          </div>
+        </div>
+
+        <!-- MY PLANS -->
+        <div id="tabPlans" style="display: none">
+          <div class="card">
+            <div class="card-title"><span>📂</span> Mes plans sauvegardés</div>
+            <div id="savedPlansList">
+              <div
+                style="color: var(--muted); text-align: center; padding: 30px"
+              >
+                Chargement...
+              </div>
+            </div>
+          </div>
+          <div id="savedPlanDetail" style="display: none">
+            <div class="card">
+              <div class="card-title">
+                <span>📋</span> <span id="savedPlanTitle"></span>
+              </div>
+              <div id="savedPlanContent" class="plan-content"></div>
+            </div>
+            <button class="btn-secondary" onclick="closeSavedPlan()">
+              ← Retour
+            </button>
+          </div>
+        </div>
+
+        <!-- TRACKING -->
+        <div id="tabTrack" style="display: none">
+          <div id="trackNoPlan" class="card" style="display: none">
+            <div class="empty-state">
+              <div class="empty-icon">🏁</div>
+              <div style="font-weight: 600; margin-bottom: 8px">
+                Aucun plan actif
+              </div>
+              <div style="font-size: 0.85rem; color: var(--muted)">
+                Génère un plan pour commencer le suivi !
+              </div>
+            </div>
+          </div>
+          <div id="trackMain" style="display: none">
+            <div class="card">
+              <div class="card-title"><span>📊</span> Progression globale</div>
+              <div class="progress-bar-wrap">
+                <div
+                  class="progress-bar-fill"
+                  id="globalProgressBar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="progress-label" id="globalProgressLabel">
+                0 / 0 séances complétées
+              </div>
+              <div class="stats-row">
+                <div class="stat-box">
+                  <div
+                    class="stat-value"
+                    id="trackStatDone"
+                    style="color: var(--accent)"
+                  >
+                    0
+                  </div>
+                  <div class="stat-label">Séances faites</div>
+                </div>
+                <div class="stat-box">
+                  <div
+                    class="stat-value"
+                    id="trackStatLeft"
+                    style="color: var(--accent2)"
+                  >
+                    0
+                  </div>
+                  <div class="stat-label">Restantes</div>
+                </div>
+                <div class="stat-box">
+                  <div
+                    class="stat-value"
+                    id="trackStatPct"
+                    style="color: var(--warn)"
+                  >
+                    0%
+                  </div>
+                  <div class="stat-label">Complétion</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title"><span>📅</span> Séances par semaine</div>
+              <div class="week-selector" id="weekSelector"></div>
+              <div class="weekly-stats">
+                <div class="wstat">
+                  <div
+                    class="wstat-val"
+                    id="wkDone"
+                    style="color: var(--accent)"
+                  >
+                    0
+                  </div>
+                  <div class="wstat-lbl">Faites</div>
+                </div>
+                <div class="wstat">
+                  <div
+                    class="wstat-val"
+                    id="wkLeft"
+                    style="color: var(--accent2)"
+                  >
+                    0
+                  </div>
+                  <div class="wstat-lbl">Restantes</div>
+                </div>
+                <div class="wstat">
+                  <div class="wstat-val" id="wkPct" style="color: var(--warn)">
+                    0%
+                  </div>
+                  <div class="wstat-lbl">Semaine</div>
+                </div>
+              </div>
+              <div class="sessions-grid" id="sessionsGrid"></div>
             </div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-title"><span>💪</span> Niveau par discipline</div>
-          <div class="disciplines">
-            <div class="discipline-card swim"><div class="discipline-icon">🏊</div><div class="discipline-name">Natation</div><div class="level-btns"><button class="level-btn active" data-disc="swim" data-val="faible">Faible</button><button class="level-btn" data-disc="swim" data-val="moyen">Moyen</button><button class="level-btn" data-disc="swim" data-val="fort">Fort</button></div></div>
-            <div class="discipline-card bike"><div class="discipline-icon">🚴</div><div class="discipline-name">Vélo</div><div class="level-btns"><button class="level-btn" data-disc="bike" data-val="faible">Faible</button><button class="level-btn active" data-disc="bike" data-val="moyen">Moyen</button><button class="level-btn" data-disc="bike" data-val="fort">Fort</button></div></div>
-            <div class="discipline-card run"><div class="discipline-icon">🏃</div><div class="discipline-name">Course</div><div class="level-btns"><button class="level-btn" data-disc="run" data-val="faible">Faible</button><button class="level-btn active" data-disc="run" data-val="moyen">Moyen</button><button class="level-btn" data-disc="run" data-val="fort">Fort</button></div></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title"><span>📅</span> Disponibilités</div>
-          <div class="hours-grid" id="dayGrid">
-            <button class="day-btn active" data-day="Lun"><span>💪</span>Lun</button>
-            <button class="day-btn" data-day="Mar"><span>💪</span>Mar</button>
-            <button class="day-btn active" data-day="Mer"><span>💪</span>Mer</button>
-            <button class="day-btn" data-day="Jeu"><span>💪</span>Jeu</button>
-            <button class="day-btn active" data-day="Ven"><span>💪</span>Ven</button>
-            <button class="day-btn" data-day="Sam"><span>💪</span>Sam</button>
-            <button class="day-btn" data-day="Dim"><span>💪</span>Dim</button>
-          </div>
-          <div style="margin-top:16px;display:flex;align-items:center;gap:12px;">
-            <label style="min-width:fit-content">Heures/séance :</label>
-            <input type="number" id="hoursPerSession" value="1.5" min="0.5" max="4" step="0.5" style="max-width:100px">
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title"><span>🏁</span> Objectif</div>
-          <div class="goal-grid">
-            <button class="goal-btn" data-goal="super-sprint"><div class="goal-emoji">⚡</div><div class="goal-label">Super Sprint</div><div class="goal-sub">375m/10km/2.5km</div></button>
-            <button class="goal-btn active" data-goal="sprint"><div class="goal-emoji">🔥</div><div class="goal-label">Sprint</div><div class="goal-sub">750m/20km/5km</div></button>
-            <button class="goal-btn" data-goal="olympique"><div class="goal-emoji">🏅</div><div class="goal-label">Olympique</div><div class="goal-sub">1.5km/40km/10km</div></button>
-            <button class="goal-btn" data-goal="half-ironman"><div class="goal-emoji">🦾</div><div class="goal-label">Half Ironman</div><div class="goal-sub">1.9km/90km/21km</div></button>
-          </div>
-          <div style="margin-top:16px;display:flex;align-items:center;gap:12px;">
-            <label>Semaines jusqu'à la course :</label>
-            <input type="number" id="weeksToRace" value="12" min="4" max="52">
-          </div>
-        </div>
-        <button class="btn-generate" onclick="generatePlan()">🚀 Générer & Sauvegarder</button>
-      </div>
-
-      <div id="loadingSection" style="display:none">
-        <div class="card loading">
-          <div class="loader"><span class="loader-icon">🏊</span><span class="loader-icon">🚴</span><span class="loader-icon">🏃</span></div>
-          <div class="loading-text">Génération en cours...</div>
-          <div class="loading-sub" id="loadingMsg">Analyse de ton profil</div>
-        </div>
-      </div>
-
-      <div id="planSection" style="display:none">
-        <div class="card">
-          <div class="save-notice">✅ Plan sauvegardé ! Va dans "Suivi" pour cocher tes séances.</div>
-          <div class="card-title"><span>🏆</span> Ton plan</div>
-          <div class="stats-row">
-            <div class="stat-box"><div class="stat-value" id="statWeeks" style="color:var(--accent)">-</div><div class="stat-label">Semaines</div></div>
-            <div class="stat-box"><div class="stat-value" id="statSessions" style="color:var(--accent2)">-</div><div class="stat-label">Séances/sem</div></div>
-            <div class="stat-box"><div class="stat-value" id="statGoal" style="color:var(--warn)">-</div><div class="stat-label">Objectif</div></div>
-          </div>
-          <div id="planContent" class="plan-content"></div>
-        </div>
-        <button class="btn-secondary" onclick="restartForm()">← Nouveau plan</button>
-        <button class="btn-secondary" style="border-color:var(--accent);color:var(--accent)" onclick="goToTracking()">✅ Voir le suivi →</button>
       </div>
     </div>
 
-    <!-- MY PLANS -->
-    <div id="tabPlans" style="display:none">
-      <div class="card">
-        <div class="card-title"><span>📂</span> Mes plans sauvegardés</div>
-        <div id="savedPlansList"><div style="color:var(--muted);text-align:center;padding:30px">Chargement...</div></div>
-      </div>
-      <div id="savedPlanDetail" style="display:none">
-        <div class="card">
-          <div class="card-title"><span>📋</span> <span id="savedPlanTitle"></span></div>
-          <div id="savedPlanContent" class="plan-content"></div>
-        </div>
-        <button class="btn-secondary" onclick="closeSavedPlan()">← Retour</button>
-      </div>
-    </div>
+    <script>
+      // ══════════════════════════════════════════════
+      // CONFIGURATION — Remplace ici tes clés Supabase
+      // ══════════════════════════════════════════════
+      const SUPABASE_URL = "https://hhetcbpsyycknhyhktjt.supabase.co";
+      const SUPABASE_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoZXRjYnBzeXlja25oeWhrdGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMzI3NTksImV4cCI6MjA5MDcwODc1OX0.tiFpXLAAJFsF-pKLROHRLm2Fs446ZeICyzFS5sFnzdE";
 
-    <!-- TRACKING -->
-    <div id="tabTrack" style="display:none">
-      <div id="trackNoPlan" class="card" style="display:none">
-        <div class="empty-state">
-          <div class="empty-icon">🏁</div>
-          <div style="font-weight:600;margin-bottom:8px">Aucun plan actif</div>
-          <div style="font-size:.85rem;color:var(--muted)">Génère un plan pour commencer le suivi !</div>
-        </div>
-      </div>
-      <div id="trackMain" style="display:none">
-        <div class="card">
-          <div class="card-title"><span>📊</span> Progression globale</div>
-          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="globalProgressBar" style="width:0%"></div></div>
-          <div class="progress-label" id="globalProgressLabel">0 / 0 séances complétées</div>
-          <div class="stats-row">
-            <div class="stat-box"><div class="stat-value" id="trackStatDone" style="color:var(--accent)">0</div><div class="stat-label">Séances faites</div></div>
-            <div class="stat-box"><div class="stat-value" id="trackStatLeft" style="color:var(--accent2)">0</div><div class="stat-label">Restantes</div></div>
-            <div class="stat-box"><div class="stat-value" id="trackStatPct" style="color:var(--warn)">0%</div><div class="stat-label">Complétion</div></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title"><span>📅</span> Séances par semaine</div>
-          <div class="week-selector" id="weekSelector"></div>
-          <div class="weekly-stats">
-            <div class="wstat"><div class="wstat-val" id="wkDone" style="color:var(--accent)">0</div><div class="wstat-lbl">Faites</div></div>
-            <div class="wstat"><div class="wstat-val" id="wkLeft" style="color:var(--accent2)">0</div><div class="wstat-lbl">Restantes</div></div>
-            <div class="wstat"><div class="wstat-val" id="wkPct" style="color:var(--warn)">0%</div><div class="wstat-lbl">Semaine</div></div>
-          </div>
-          <div class="sessions-grid" id="sessionsGrid"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+      const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      let currentUser = null;
+      let activePlan = null;
+      let trackingSessions = [];
+      let currentWeek = 1;
+      const formState = {
+        swim: "faible",
+        bike: "moyen",
+        run: "moyen",
+        days: ["Lun", "Mer", "Ven"],
+        goal: "sprint",
+      };
 
-<script>
-  // ══════════════════════════════════════════════
-  // CONFIGURATION — Remplace ici tes clés Supabase
-  // ══════════════════════════════════════════════
-  const SUPABASE_URL = 'https://hhetcbpsyycknhyhktjt.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoZXRjYnBzeXlja25oeWhrdGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMzI3NTksImV4cCI6MjA5MDcwODc1OX0.tiFpXLAAJFsF-pKLROHRLm2Fs446ZeICyzFS5sFnzdE';
+      // ── INIT ──
+      window.addEventListener("load", async () => {
+        const {
+          data: { session },
+        } = await sb.auth.getSession();
+        if (session) onLogin(session.user);
+        sb.auth.onAuthStateChange((_e, session) => {
+          if (session) onLogin(session.user);
+          else onLogout();
+        });
+        setupFormInteractions();
+      });
 
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  let currentUser = null;
-  let activePlan = null;
-  let trackingSessions = [];
-  let currentWeek = 1;
-  const formState = { swim:'faible', bike:'moyen', run:'moyen', days:['Lun','Mer','Ven'], goal:'sprint' };
+      function onLogin(user) {
+        currentUser = user;
+        document.getElementById("authSection").style.display = "none";
+        document.getElementById("mainApp").style.display = "block";
+        document.getElementById("userArea").style.display = "flex";
+        document.getElementById("userEmail").textContent = user.email;
+      }
+      function onLogout() {
+        currentUser = null;
+        document.getElementById("authSection").style.display = "block";
+        document.getElementById("mainApp").style.display = "none";
+        document.getElementById("userArea").style.display = "none";
+      }
+      async function signIn() {
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        setAuthMsg("Connexion...", "");
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) setAuthMsg(error.message, "error");
+      }
+      async function signUp() {
+        const email = document.getElementById("signupEmail").value;
+        const password = document.getElementById("signupPassword").value;
+        setAuthMsg("Création...", "");
+        const { error } = await sb.auth.signUp({ email, password });
+        if (error) setAuthMsg(error.message, "error");
+        else
+          setAuthMsg(
+            "✅ Compte créé ! Vérifie ton email pour confirmer.",
+            "success",
+          );
+      }
+      async function signOut() {
+        await sb.auth.signOut();
+      }
+      function setAuthMsg(msg, type) {
+        const el = document.getElementById("authMsg");
+        el.textContent = msg;
+        el.className = "auth-msg" + (type ? " " + type : "");
+      }
+      function switchTab(tab) {
+        document
+          .querySelectorAll(".auth-tab")
+          .forEach((t, i) =>
+            t.classList.toggle("active", (i === 0) === (tab === "login")),
+          );
+        document.getElementById("loginForm").style.display =
+          tab === "login" ? "block" : "none";
+        document.getElementById("signupForm").style.display =
+          tab === "signup" ? "block" : "none";
+        setAuthMsg("", "");
+      }
 
-  // ── INIT ──
-  window.addEventListener('load', async () => {
-    const { data:{ session } } = await sb.auth.getSession();
-    if (session) onLogin(session.user);
-    sb.auth.onAuthStateChange((_e, session) => { if(session) onLogin(session.user); else onLogout(); });
-    setupFormInteractions();
-  });
+      // ── NAV ──
+      function showTab(tab) {
+        ["new", "plans", "track"].forEach((t) => {
+          document.getElementById(
+            "tab" + t.charAt(0).toUpperCase() + t.slice(1),
+          ).style.display = t === tab ? "block" : "none";
+          document
+            .getElementById("nav" + t.charAt(0).toUpperCase() + t.slice(1))
+            .classList.toggle("active", t === tab);
+        });
+        if (tab === "plans") loadSavedPlans();
+        if (tab === "track") loadTracking();
+      }
 
-  function onLogin(user) {
-    currentUser = user;
-    document.getElementById('authSection').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    document.getElementById('userArea').style.display = 'flex';
-    document.getElementById('userEmail').textContent = user.email;
-  }
-  function onLogout() {
-    currentUser = null;
-    document.getElementById('authSection').style.display = 'block';
-    document.getElementById('mainApp').style.display = 'none';
-    document.getElementById('userArea').style.display = 'none';
-  }
-  async function signIn() {
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    setAuthMsg('Connexion...','');
-    const { error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) setAuthMsg(error.message,'error');
-  }
-  async function signUp() {
-    const email = document.getElementById('signupEmail').value;
-    const password = document.getElementById('signupPassword').value;
-    setAuthMsg('Création...','');
-    const { error } = await sb.auth.signUp({ email, password });
-    if (error) setAuthMsg(error.message,'error');
-    else setAuthMsg('✅ Compte créé ! Vérifie ton email pour confirmer.','success');
-  }
-  async function signOut() { await sb.auth.signOut(); }
-  function setAuthMsg(msg, type) { const el=document.getElementById('authMsg'); el.textContent=msg; el.className='auth-msg'+(type?' '+type:''); }
-  function switchTab(tab) {
-    document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',(i===0)===(tab==='login')));
-    document.getElementById('loginForm').style.display=tab==='login'?'block':'none';
-    document.getElementById('signupForm').style.display=tab==='signup'?'block':'none';
-    setAuthMsg('','');
-  }
+      // ── FORM INTERACTIONS ──
+      function setupFormInteractions() {
+        document.querySelectorAll(".level-btn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            const disc = btn.dataset.disc;
+            document
+              .querySelectorAll(`[data-disc="${disc}"]`)
+              .forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            formState[disc] = btn.dataset.val;
+          }),
+        );
+        document.querySelectorAll(".day-btn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            btn.classList.toggle("active");
+            const day = btn.dataset.day;
+            if (formState.days.includes(day))
+              formState.days = formState.days.filter((d) => d !== day);
+            else formState.days.push(day);
+          }),
+        );
+        document.querySelectorAll(".goal-btn").forEach((btn) =>
+          btn.addEventListener("click", () => {
+            document
+              .querySelectorAll(".goal-btn")
+              .forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            formState.goal = btn.dataset.goal;
+          }),
+        );
+      }
 
-  // ── NAV ──
-  function showTab(tab) {
-    ['new','plans','track'].forEach(t => {
-      document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).style.display = t===tab?'block':'none';
-      document.getElementById('nav'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active', t===tab);
-    });
-    if (tab==='plans') loadSavedPlans();
-    if (tab==='track') loadTracking();
-  }
+      const loadingMsgs = [
+        "Analyse de ton profil...",
+        "Calcul des zones d'intensité...",
+        "Répartition des disciplines...",
+        "Planification hebdomadaire...",
+        "Finalisation des séances...",
+      ];
+      const goalLabels = {
+        "super-sprint": "Super Sprint (375m/10km/2.5km)",
+        sprint: "Sprint (750m/20km/5km)",
+        olympique: "Olympique (1.5km/40km/10km)",
+        "half-ironman": "Half Ironman (1.9km/90km/21km)",
+      };
 
-  // ── FORM INTERACTIONS ──
-  function setupFormInteractions() {
-    document.querySelectorAll('.level-btn').forEach(btn => btn.addEventListener('click', () => {
-      const disc=btn.dataset.disc;
-      document.querySelectorAll(`[data-disc="${disc}"]`).forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active'); formState[disc]=btn.dataset.val;
-    }));
-    document.querySelectorAll('.day-btn').forEach(btn => btn.addEventListener('click', () => {
-      btn.classList.toggle('active');
-      const day=btn.dataset.day;
-      if(formState.days.includes(day)) formState.days=formState.days.filter(d=>d!==day); else formState.days.push(day);
-    }));
-    document.querySelectorAll('.goal-btn').forEach(btn => btn.addEventListener('click', () => {
-      document.querySelectorAll('.goal-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active'); formState.goal=btn.dataset.goal;
-    }));
-  }
+      // ── GENERATE PLAN ──
+      async function generatePlan() {
+        if (formState.days.length === 0) {
+          alert("Sélectionne au moins un jour !");
+          return;
+        }
+        const age = document.getElementById("age").value;
+        const experience = document.getElementById("experience").value;
+        const hrs = document.getElementById("hoursPerSession").value;
+        const weeks = document.getElementById("weeksToRace").value;
 
-  const loadingMsgs = ["Analyse de ton profil...","Calcul des zones d'intensité...","Répartition des disciplines...","Planification hebdomadaire...","Finalisation des séances..."];
-  const goalLabels = {'super-sprint':'Super Sprint (375m/10km/2.5km)','sprint':'Sprint (750m/20km/5km)','olympique':'Olympique (1.5km/40km/10km)','half-ironman':'Half Ironman (1.9km/90km/21km)'};
+        document.getElementById("formSection").style.display = "none";
+        document.getElementById("loadingSection").style.display = "block";
 
-  // ── GENERATE PLAN ──
-  async function generatePlan() {
-    if (formState.days.length===0) { alert("Sélectionne au moins un jour !"); return; }
-    const age=document.getElementById('age').value;
-    const experience=document.getElementById('experience').value;
-    const hrs=document.getElementById('hoursPerSession').value;
-    const weeks=document.getElementById('weeksToRace').value;
+        let mi = 0;
+        const interval = setInterval(() => {
+          mi = (mi + 1) % loadingMsgs.length;
+          document.getElementById("loadingMsg").textContent = loadingMsgs[mi];
+        }, 1500);
 
-    document.getElementById('formSection').style.display='none';
-    document.getElementById('loadingSection').style.display='block';
-
-    let mi=0;
-    const interval=setInterval(()=>{ mi=(mi+1)%loadingMsgs.length; document.getElementById('loadingMsg').textContent=loadingMsgs[mi]; },1500);
-
-    const prompt=`Tu es un coach triathlon expert. Génère un plan d'entraînement triathlon en français.
+        const prompt = `Tu es un coach triathlon expert. Génère un plan d'entraînement triathlon en français.
 
 PROFIL: Âge=${age} | Expérience=${experience} | Niveaux: Natation=${formState.swim}, Vélo=${formState.bike}, Course=${formState.run}
-Jours: ${formState.days.join(', ')} (${formState.days.length}/sem) | ${hrs}h/séance | Objectif: ${goalLabels[formState.goal]} | ${weeks} semaines
+Jours: ${formState.days.join(", ")} (${formState.days.length}/sem) | ${hrs}h/séance | Objectif: ${goalLabels[formState.goal]} | ${weeks} semaines
 
 Génère 4 semaines de plan. Pour chaque semaine:
 - Séances uniquement sur les jours disponibles
@@ -444,179 +1450,338 @@ Génère 4 semaines de plan. Pour chaque semaine:
 - Charge totale hebdomadaire en heures
 Commence par "📋 SEMAINE 1 —". Termine par 3 conseils personnalisés.`;
 
-    let fullText='';
-    try {
-      const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1800,stream:true,messages:[{role:'user',content:prompt}]})});
-      clearInterval(interval);
-      document.getElementById('loadingSection').style.display='none';
-      document.getElementById('planSection').style.display='block';
-      document.getElementById('statWeeks').textContent=weeks;
-      document.getElementById('statSessions').textContent=formState.days.length;
-      document.getElementById('statGoal').textContent=formState.goal.charAt(0).toUpperCase()+formState.goal.slice(1);
+        let fullText = "";
+        try {
+          const res = await fetch("/api/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 1800,
+              stream: true,
+              messages: [{ role: "user", content: prompt }],
+            }),
+          });
+          clearInterval(interval);
+          document.getElementById("loadingSection").style.display = "none";
+          document.getElementById("planSection").style.display = "block";
+          document.getElementById("statWeeks").textContent = weeks;
+          document.getElementById("statSessions").textContent =
+            formState.days.length;
+          document.getElementById("statGoal").textContent =
+            formState.goal.charAt(0).toUpperCase() + formState.goal.slice(1);
 
-      const planEl=document.getElementById('planContent');
-      planEl.innerHTML='<span class="stream-cursor"></span>';
-      const reader=res.body.getReader(); const dec=new TextDecoder();
-      while(true){
-        const{done,value}=await reader.read(); if(done) break;
-        for(const line of dec.decode(value).split('\n')){
-          if(line.startsWith('data: ')){const d=line.slice(6); if(d==='[DONE]') continue; try{const p=JSON.parse(d); if(p.type==='content_block_delta'&&p.delta?.text){fullText+=p.delta.text; planEl.innerHTML=formatPlan(fullText)+'<span class="stream-cursor"></span>';}}catch{}}
+          const planEl = document.getElementById("planContent");
+          planEl.innerHTML = '<span class="stream-cursor"></span>';
+          const reader = res.body.getReader();
+          const dec = new TextDecoder();
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            for (const line of dec.decode(value).split("\n")) {
+              if (line.startsWith("data: ")) {
+                const d = line.slice(6);
+                if (d === "[DONE]") continue;
+                try {
+                  const p = JSON.parse(d);
+                  if (p.type === "content_block_delta" && p.delta?.text) {
+                    fullText += p.delta.text;
+                    planEl.innerHTML =
+                      formatPlan(fullText) +
+                      '<span class="stream-cursor"></span>';
+                  }
+                } catch {}
+              }
+            }
+          }
+          planEl.innerHTML = formatPlan(fullText);
+
+          if (currentUser) {
+            const sessions = parseSessionsFromPlan(
+              fullText,
+              formState.days,
+              parseInt(weeks),
+            );
+            const { data: planData } = await sb
+              .from("plans")
+              .insert({
+                user_id: currentUser.id,
+                goal: formState.goal,
+                weeks_to_race: parseInt(weeks),
+                days_available: formState.days,
+                hours_per_session: parseFloat(hrs),
+                plan_content: fullText,
+              })
+              .select()
+              .single();
+            if (planData && sessions.length > 0) {
+              await sb
+                .from("sessions")
+                .insert(
+                  sessions.map((s) => ({
+                    ...s,
+                    plan_id: planData.id,
+                    user_id: currentUser.id,
+                  })),
+                );
+              activePlan = planData;
+            }
+          }
+        } catch (err) {
+          clearInterval(interval);
+          document.getElementById("loadingSection").style.display = "none";
+          document.getElementById("planSection").style.display = "block";
+          document.getElementById("planContent").innerHTML =
+            `<span style="color:var(--warn)">Erreur lors de la génération. Réessaie.</span>`;
         }
       }
-      planEl.innerHTML=formatPlan(fullText);
 
-      if(currentUser){
-        const sessions=parseSessionsFromPlan(fullText, formState.days, parseInt(weeks));
-        const{data:planData}=await sb.from('plans').insert({user_id:currentUser.id,goal:formState.goal,weeks_to_race:parseInt(weeks),days_available:formState.days,hours_per_session:parseFloat(hrs),plan_content:fullText}).select().single();
-        if(planData && sessions.length>0){
-          await sb.from('sessions').insert(sessions.map(s=>({...s,plan_id:planData.id,user_id:currentUser.id})));
-          activePlan=planData;
+      function parseSessionsFromPlan(text, days, totalWeeks) {
+        const sessions = [];
+        const lines = text.split("\n");
+        let currentWeekNum = 0;
+        for (const line of lines) {
+          const weekMatch = line.match(/SEMAINE\s+(\d+)/i);
+          if (weekMatch) currentWeekNum = parseInt(weekMatch[1]);
+          if (currentWeekNum === 0) continue;
+          for (const day of days) {
+            if (line.includes(day)) {
+              let disc = "entrainement";
+              if (line.includes("🏊")) disc = "natation";
+              else if (line.includes("🚴")) disc = "vélo";
+              else if (line.includes("🏃")) disc = "course";
+              const durationMatch = line.match(
+                /(\d+h\d*|\d+\s*min|[\d.]+\s*h)/i,
+              );
+              const desc = line
+                .replace(/[📋🏊🚴🏃]/g, "")
+                .replace(/\*\*/g, "")
+                .trim()
+                .substring(0, 120);
+              sessions.push({
+                week_number: currentWeekNum,
+                day,
+                discipline: disc,
+                description: desc,
+                duration: durationMatch ? durationMatch[0] : "",
+                done: false,
+              });
+              break;
+            }
+          }
         }
-      }
-    } catch(err) {
-      clearInterval(interval);
-      document.getElementById('loadingSection').style.display='none';
-      document.getElementById('planSection').style.display='block';
-      document.getElementById('planContent').innerHTML=`<span style="color:var(--warn)">Erreur lors de la génération. Réessaie.</span>`;
-    }
-  }
-
-  function parseSessionsFromPlan(text, days, totalWeeks) {
-    const sessions=[];
-    const lines=text.split('\n');
-    let currentWeekNum=0;
-    for(const line of lines){
-      const weekMatch=line.match(/SEMAINE\s+(\d+)/i);
-      if(weekMatch) currentWeekNum=parseInt(weekMatch[1]);
-      if(currentWeekNum===0) continue;
-      for(const day of days){
-        if(line.includes(day)){
-          let disc='entrainement';
-          if(line.includes('🏊')) disc='natation';
-          else if(line.includes('🚴')) disc='vélo';
-          else if(line.includes('🏃')) disc='course';
-          const durationMatch=line.match(/(\d+h\d*|\d+\s*min|[\d.]+\s*h)/i);
-          const desc=line.replace(/[📋🏊🚴🏃]/g,'').replace(/\*\*/g,'').trim().substring(0,120);
-          sessions.push({week_number:currentWeekNum,day,discipline:disc,description:desc,duration:durationMatch?durationMatch[0]:'',done:false});
-          break;
+        if (sessions.length < 4) {
+          const discs = ["natation", "vélo", "course", "natation", "vélo"];
+          for (let w = 1; w <= Math.min(4, totalWeeks); w++) {
+            days.forEach((day, i) =>
+              sessions.push({
+                week_number: w,
+                day,
+                discipline: discs[i % discs.length],
+                description: `Séance ${discs[i % discs.length]} — Semaine ${w}`,
+                duration: "1h30",
+                done: false,
+              }),
+            );
+          }
         }
+        return sessions;
       }
-    }
-    if(sessions.length<4){
-      const discs=['natation','vélo','course','natation','vélo'];
-      for(let w=1;w<=Math.min(4,totalWeeks);w++){
-        days.forEach((day,i)=>sessions.push({week_number:w,day,discipline:discs[i%discs.length],description:`Séance ${discs[i%discs.length]} — Semaine ${w}`,duration:'1h30',done:false}));
+
+      function formatPlan(text) {
+        return text
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+          .replace(
+            /📋 (SEMAINE \d+[^\n]*)/g,
+            "<br><span style=\"font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:var(--accent);\">📋 $1</span><br>",
+          )
+          .replace(/🏊/g, '<span class="session-swim">🏊</span>')
+          .replace(/🚴/g, '<span class="session-bike">🚴</span>')
+          .replace(/🏃/g, '<span class="session-run">🏃</span>')
+          .replace(/\n/g, "<br>");
       }
-    }
-    return sessions;
-  }
 
-  function formatPlan(text){
-    return text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/📋 (SEMAINE \d+[^\n]*)/g,'<br><span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.3rem;letter-spacing:2px;color:var(--accent);">📋 $1</span><br>').replace(/🏊/g,'<span class="session-swim">🏊</span>').replace(/🚴/g,'<span class="session-bike">🚴</span>').replace(/🏃/g,'<span class="session-run">🏃</span>').replace(/\n/g,'<br>');
-  }
+      function restartForm() {
+        document.getElementById("planSection").style.display = "none";
+        document.getElementById("formSection").style.display = "block";
+      }
+      function goToTracking() {
+        showTab("track");
+        document.querySelectorAll(".nav-tab").forEach((t, i) => {
+          t.classList.toggle("active", i === 2);
+        });
+      }
 
-  function restartForm(){document.getElementById('planSection').style.display='none';document.getElementById('formSection').style.display='block';}
-  function goToTracking(){
-    showTab('track');
-    document.querySelectorAll('.nav-tab').forEach((t,i)=>{t.classList.toggle('active',i===2)});
-  }
+      // ── SAVED PLANS ──
+      async function loadSavedPlans() {
+        const list = document.getElementById("savedPlansList");
+        document.getElementById("savedPlanDetail").style.display = "none";
+        list.style.display = "block";
+        list.innerHTML =
+          '<div style="color:var(--muted);text-align:center;padding:30px">Chargement...</div>';
+        const { data } = await sb
+          .from("plans")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (!data || data.length === 0) {
+          list.innerHTML =
+            '<div style="color:var(--muted);text-align:center;padding:30px">Aucun plan. Génère ton premier plan ! 🚀</div>';
+          return;
+        }
+        // Store plans data globally for safe access
+        window._savedPlans = {};
+        data.forEach((plan) => {
+          window._savedPlans[plan.id] = plan;
+        });
 
-  // ── SAVED PLANS ──
-  async function loadSavedPlans(){
-    const list=document.getElementById('savedPlansList');
-    document.getElementById('savedPlanDetail').style.display='none';
-    list.style.display='block';
-    list.innerHTML='<div style="color:var(--muted);text-align:center;padding:30px">Chargement...</div>';
-    const{data}=await sb.from('plans').select('*').order('created_at',{ascending:false});
-    if(!data||data.length===0){list.innerHTML='<div style="color:var(--muted);text-align:center;padding:30px">Aucun plan. Génère ton premier plan ! 🚀</div>';return;}
-    list.innerHTML=data.map(plan=>`
-      <div class="saved-plan-item" onclick="openSavedPlan('${plan.id}','${plan.goal}',\`${plan.plan_content.replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`)">
+        list.innerHTML = data
+          .map(
+            (plan) => `
+      <div class="saved-plan-item" data-plan-id="${plan.id}" onclick="openSavedPlanById(this.dataset.planId)">
         <div>
-          <div class="saved-plan-title">🏁 ${plan.goal.charAt(0).toUpperCase()+plan.goal.slice(1)}</div>
-          <div class="saved-plan-meta">${plan.days_available?.join(', ')} · ${plan.weeks_to_race} semaines · ${new Date(plan.created_at).toLocaleDateString('fr-FR')}</div>
+          <div class="saved-plan-title">🏁 ${plan.goal.charAt(0).toUpperCase() + plan.goal.slice(1)}</div>
+          <div class="saved-plan-meta">${plan.days_available?.join(", ")} · ${plan.weeks_to_race} semaines · ${new Date(plan.created_at).toLocaleDateString("fr-FR")}</div>
         </div>
         <span class="badge badge-accent">Voir</span>
-      </div>`).join('');
-  }
-  function openSavedPlan(id,goal,content){
-    document.getElementById('savedPlansList').style.display='none';
-    document.getElementById('savedPlanDetail').style.display='block';
-    document.getElementById('savedPlanTitle').textContent='Objectif : '+goal.charAt(0).toUpperCase()+goal.slice(1);
-    document.getElementById('savedPlanContent').innerHTML=formatPlan(content);
-  }
-  function closeSavedPlan(){document.getElementById('savedPlansList').style.display='block';document.getElementById('savedPlanDetail').style.display='none';}
+      </div>`,
+          )
+          .join("");
+      }
+      function openSavedPlanById(id) {
+        const plan = window._savedPlans[id];
+        if (!plan) return;
+        document.getElementById("savedPlansList").style.display = "none";
+        document.getElementById("savedPlanDetail").style.display = "block";
+        document.getElementById("savedPlanTitle").textContent =
+          "Objectif : " +
+          plan.goal.charAt(0).toUpperCase() +
+          plan.goal.slice(1);
+        document.getElementById("savedPlanContent").innerHTML = formatPlan(
+          plan.plan_content,
+        );
+      }
+      function closeSavedPlan() {
+        document.getElementById("savedPlansList").style.display = "block";
+        document.getElementById("savedPlanDetail").style.display = "none";
+      }
 
-  // ── TRACKING ──
-  async function loadTracking(){
-    document.getElementById('trackNoPlan').style.display='none';
-    document.getElementById('trackMain').style.display='none';
-    const{data:plans}=await sb.from('plans').select('*').order('created_at',{ascending:false}).limit(1);
-    if(!plans||plans.length===0){document.getElementById('trackNoPlan').style.display='block';return;}
-    activePlan=plans[0];
-    const{data:sessions}=await sb.from('sessions').select('*').eq('plan_id',activePlan.id).order('week_number').order('day');
-    trackingSessions=sessions||[];
-    if(trackingSessions.length===0){document.getElementById('trackNoPlan').style.display='block';return;}
-    document.getElementById('trackMain').style.display='block';
-    updateGlobalProgress();
-    buildWeekSelector();
-    renderWeek(currentWeek);
-  }
+      // ── TRACKING ──
+      async function loadTracking() {
+        document.getElementById("trackNoPlan").style.display = "none";
+        document.getElementById("trackMain").style.display = "none";
+        const { data: plans } = await sb
+          .from("plans")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(1);
+        if (!plans || plans.length === 0) {
+          document.getElementById("trackNoPlan").style.display = "block";
+          return;
+        }
+        activePlan = plans[0];
+        const { data: sessions } = await sb
+          .from("sessions")
+          .select("*")
+          .eq("plan_id", activePlan.id)
+          .order("week_number")
+          .order("day");
+        trackingSessions = sessions || [];
+        if (trackingSessions.length === 0) {
+          document.getElementById("trackNoPlan").style.display = "block";
+          return;
+        }
+        document.getElementById("trackMain").style.display = "block";
+        updateGlobalProgress();
+        buildWeekSelector();
+        renderWeek(currentWeek);
+      }
 
-  function updateGlobalProgress(){
-    const total=trackingSessions.length;
-    const done=trackingSessions.filter(s=>s.done).length;
-    const pct=total>0?Math.round(done/total*100):0;
-    document.getElementById('globalProgressBar').style.width=pct+'%';
-    document.getElementById('globalProgressLabel').textContent=`${done} / ${total} séances complétées`;
-    document.getElementById('trackStatDone').textContent=done;
-    document.getElementById('trackStatLeft').textContent=total-done;
-    document.getElementById('trackStatPct').textContent=pct+'%';
-  }
+      function updateGlobalProgress() {
+        const total = trackingSessions.length;
+        const done = trackingSessions.filter((s) => s.done).length;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        document.getElementById("globalProgressBar").style.width = pct + "%";
+        document.getElementById("globalProgressLabel").textContent =
+          `${done} / ${total} séances complétées`;
+        document.getElementById("trackStatDone").textContent = done;
+        document.getElementById("trackStatLeft").textContent = total - done;
+        document.getElementById("trackStatPct").textContent = pct + "%";
+      }
 
-  function buildWeekSelector(){
-    const weeks=[...new Set(trackingSessions.map(s=>s.week_number))].sort((a,b)=>a-b);
-    document.getElementById('weekSelector').innerHTML=weeks.map(w=>{
-      const complete=trackingSessions.filter(s=>s.week_number===w).every(s=>s.done);
-      return `<button class="week-pill ${w===currentWeek?'active':''} ${complete?'complete':''}" onclick="selectWeek(${w})">Sem. ${w} ${complete?'✅':''}</button>`;
-    }).join('');
-  }
+      function buildWeekSelector() {
+        const weeks = [
+          ...new Set(trackingSessions.map((s) => s.week_number)),
+        ].sort((a, b) => a - b);
+        document.getElementById("weekSelector").innerHTML = weeks
+          .map((w) => {
+            const complete = trackingSessions
+              .filter((s) => s.week_number === w)
+              .every((s) => s.done);
+            return `<button class="week-pill ${w === currentWeek ? "active" : ""} ${complete ? "complete" : ""}" onclick="selectWeek(${w})">Sem. ${w} ${complete ? "✅" : ""}</button>`;
+          })
+          .join("");
+      }
 
-  function selectWeek(w){currentWeek=w;buildWeekSelector();renderWeek(w);}
+      function selectWeek(w) {
+        currentWeek = w;
+        buildWeekSelector();
+        renderWeek(w);
+      }
 
-  function renderWeek(w){
-    const wSessions=trackingSessions.filter(s=>s.week_number===w);
-    const done=wSessions.filter(s=>s.done).length;
-    const total=wSessions.length;
-    const pct=total>0?Math.round(done/total*100):0;
-    document.getElementById('wkDone').textContent=done;
-    document.getElementById('wkLeft').textContent=total-done;
-    document.getElementById('wkPct').textContent=pct+'%';
-    const discEmoji={'natation':'🏊','vélo':'🚴','course':'🏃','entrainement':'💪'};
-    const discClass={'natation':'disc-swim','vélo':'disc-bike','course':'disc-run','entrainement':'disc-brick'};
-    document.getElementById('sessionsGrid').innerHTML=wSessions.map(s=>`
-      <div class="session-item ${s.done?'done':''}" id="sess-${s.id}" onclick="toggleSession('${s.id}')">
-        <div class="session-checkbox">${s.done?'✓':''}</div>
+      function renderWeek(w) {
+        const wSessions = trackingSessions.filter((s) => s.week_number === w);
+        const done = wSessions.filter((s) => s.done).length;
+        const total = wSessions.length;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        document.getElementById("wkDone").textContent = done;
+        document.getElementById("wkLeft").textContent = total - done;
+        document.getElementById("wkPct").textContent = pct + "%";
+        const discEmoji = {
+          natation: "🏊",
+          vélo: "🚴",
+          course: "🏃",
+          entrainement: "💪",
+        };
+        const discClass = {
+          natation: "disc-swim",
+          vélo: "disc-bike",
+          course: "disc-run",
+          entrainement: "disc-brick",
+        };
+        document.getElementById("sessionsGrid").innerHTML = wSessions
+          .map(
+            (s) => `
+      <div class="session-item ${s.done ? "done" : ""}" id="sess-${s.id}" onclick="toggleSession('${s.id}')">
+        <div class="session-checkbox">${s.done ? "✓" : ""}</div>
         <div class="session-info">
           <div class="session-day">${s.day}</div>
-          <div class="session-desc">${discEmoji[s.discipline]||'💪'} ${s.description||s.discipline}</div>
-          ${s.duration?`<div class="session-duration">⏱ ${s.duration}</div>`:''}
+          <div class="session-desc">${discEmoji[s.discipline] || "💪"} ${s.description || s.discipline}</div>
+          ${s.duration ? `<div class="session-duration">⏱ ${s.duration}</div>` : ""}
         </div>
-        <span class="session-disc-badge ${discClass[s.discipline]||'disc-brick'}">${s.discipline}</span>
-      </div>`).join('');
-  }
+        <span class="session-disc-badge ${discClass[s.discipline] || "disc-brick"}">${s.discipline}</span>
+      </div>`,
+          )
+          .join("");
+      }
 
-  async function toggleSession(sessionId){
-    const session=trackingSessions.find(s=>s.id===sessionId);
-    if(!session) return;
-    const newDone=!session.done;
-    session.done=newDone;
-    const el=document.getElementById('sess-'+sessionId);
-    el.classList.toggle('done',newDone);
-    el.querySelector('.session-checkbox').textContent=newDone?'✓':'';
-    updateGlobalProgress();
-    buildWeekSelector();
-    await sb.from('sessions').update({done:newDone,done_at:newDone?new Date().toISOString():null}).eq('id',sessionId);
-  }
-</script>
-</body>
+      async function toggleSession(sessionId) {
+        const session = trackingSessions.find((s) => s.id === sessionId);
+        if (!session) return;
+        const newDone = !session.done;
+        session.done = newDone;
+        const el = document.getElementById("sess-" + sessionId);
+        el.classList.toggle("done", newDone);
+        el.querySelector(".session-checkbox").textContent = newDone ? "✓" : "";
+        updateGlobalProgress();
+        buildWeekSelector();
+        await sb
+          .from("sessions")
+          .update({
+            done: newDone,
+            done_at: newDone ? new Date().toISOString() : null,
+          })
+          .eq("id", sessionId);
+      }
+    </script>
+  </body>
 </html>
